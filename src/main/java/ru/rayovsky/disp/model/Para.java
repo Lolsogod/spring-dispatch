@@ -2,6 +2,7 @@ package ru.rayovsky.disp.model;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="para")
@@ -12,7 +13,18 @@ public class Para {
     private String type;
     private String audit;
     private LocalDate date;
+
+    public LocalDateTime getCheckDate() {
+        return checkDate;
+    }
+
     private Integer num;
+
+    public void setCheckDate(LocalDateTime checkDate) {
+        this.checkDate = checkDate;
+    }
+
+    private LocalDateTime checkDate;
 
     public void setState(String state) {
         this.state = state;

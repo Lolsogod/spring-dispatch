@@ -12,6 +12,7 @@ import ru.rayovsky.disp.model.Para;
 import ru.rayovsky.disp.repository.ParaRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -40,6 +41,7 @@ public class ParaController {
         try {
             Para para = paraRepository.findById(id).get();
             para.setState(json.get("state"));
+            para.setCheckDate(LocalDateTime.now());
             paraRepository.save(para);
         }catch (NoSuchElementException e){throw new NothingFoundException("Пара не найдена");}
         return new ResponseEntity(HttpStatus.ACCEPTED);
@@ -48,10 +50,10 @@ public class ParaController {
     public void CheckAuthByRole(){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!(principal instanceof JwtUserDetails))
-            throw  new AuthenticationException("Something wrong with your credentials");
+            throw  new AuthenticationException("Некоректные данные авторизации");
         String role = ((JwtUserDetails)principal).getRole();
         if (!Arrays.asList("dispatcher", "decan", "admin").contains(role)) {
-            throw new AuthorizationException("You dont have permission edit data");
+            throw new AuthorizationException("У вас нет доступа к редактированию данных");
         }
 
     }

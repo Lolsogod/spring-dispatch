@@ -37,10 +37,10 @@ public class TeacherParaController {
     public void CheckAuthById(Long id){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!(principal instanceof JwtUserDetails))
-            throw  new AuthenticationException("Something wrong with your credentials");
+            throw  new AuthenticationException("Некоректные данные авторизации");
         Long authId = ((JwtUserDetails)principal).getId();
         String role = ((JwtUserDetails)principal).getRole();
         if (authId != id && !Arrays.asList("dispatcher", "decan", "admin").contains(role))
-            throw  new AuthorizationException("You dont have permission to access other users data");
+            throw  new AuthorizationException("У вас нет доступа к данным других пользователей");
     }
 }
