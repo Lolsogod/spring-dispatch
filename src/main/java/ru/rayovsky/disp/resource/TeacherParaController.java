@@ -9,6 +9,7 @@ import ru.rayovsky.disp.jwt.JwtUserDetails;
 import ru.rayovsky.disp.model.Para;
 import ru.rayovsky.disp.repository.ParaRepository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000/")
@@ -39,7 +40,7 @@ public class TeacherParaController {
             throw  new AuthenticationException("Something wrong with your credentials");
         Long authId = ((JwtUserDetails)principal).getId();
         String role = ((JwtUserDetails)principal).getRole();
-        if (authId != id && !role.equals("dispatcher" ) && !role.equals("admin"))
+        if (authId != id && !Arrays.asList("dispatcher", "decan", "admin").contains(role))
             throw  new AuthorizationException("You dont have permission to access other users data");
     }
 }

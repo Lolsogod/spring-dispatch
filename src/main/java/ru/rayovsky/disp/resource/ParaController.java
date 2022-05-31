@@ -12,10 +12,7 @@ import ru.rayovsky.disp.model.Para;
 import ru.rayovsky.disp.repository.ParaRepository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @CrossOrigin(origins = "http://localhost:3000/")
@@ -53,7 +50,7 @@ public class ParaController {
         if (!(principal instanceof JwtUserDetails))
             throw  new AuthenticationException("Something wrong with your credentials");
         String role = ((JwtUserDetails)principal).getRole();
-        if (!role.equals("dispatcher" ) && !role.equals("admin")) {
+        if (!Arrays.asList("dispatcher", "decan", "admin").contains(role)) {
             throw new AuthorizationException("You dont have permission edit data");
         }
 
