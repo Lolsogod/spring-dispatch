@@ -46,6 +46,11 @@ public class ParaController {
         }catch (NoSuchElementException e){throw new NothingFoundException("Пара не найдена");}
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
+    //плохо, доделай...
+    @GetMapping("/{id}")
+    public Para getParaById(@PathVariable Long id){
+        return paraRepository.findById(id).get();
+    }
     //код повторяется...попробывать переделать на анотации
     public void CheckAuthByRole(){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

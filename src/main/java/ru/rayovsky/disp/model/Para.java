@@ -39,7 +39,6 @@ public class Para {
     @JoinColumn(name = "subject_id")
     private Subject subject;
 
-
     public Para(String type, String audit, LocalDate date, Integer num, String state, User teacher, Subject subject) {
         this.type = type;
         this.audit = audit;
