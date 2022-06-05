@@ -12,6 +12,8 @@ public class Expl {
     @OneToOne
     @JoinColumn(name = "id")
     private Para para;
+
+    @Column(columnDefinition = "TEXT")  
     private String reason;
     private LocalDate writingDate;
     public Expl(Para para, String reason, LocalDate writingDate) {
