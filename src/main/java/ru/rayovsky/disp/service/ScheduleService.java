@@ -5,6 +5,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.rayovsky.disp.exception.NothingFoundException;
 import ru.rayovsky.disp.model.Para;
 import ru.rayovsky.disp.model.ParaPrototype;
 import ru.rayovsky.disp.model.ScheduleHelper;
@@ -37,25 +38,24 @@ public class ScheduleService implements Runnable{
         this.scheduleHelperRepository = scheduleHelperRepository;
     }
     public Para paraBuilder(ParaPrototype p){
-        Para res = new Para(p.getType(), p.getAudit(), LocalDate.now(),
+        return new Para(p.getType(), p.getAudit(), LocalDate.now(),
                 p.getNum(),"pending",p.getTeacher(),p.getSubject());
-        return res;
     }
     public List<Para> paraListBuilder(Long userId, DayOfWeek day){
         List<ParaPrototype> ps =paraPrototypeRepository.findAllByTeacher_UserIdAndDayAndActiveIsTrue(userId, day);
         List<Para> res = new ArrayList<>();
-        ps.stream().forEach(p->res.add(paraBuilder(p)));
+        ps.forEach(p->res.add(paraBuilder(p)));
         return res;
     }
 
     public void buildTodayParasById(Long id){
         List<Para> res = paraListBuilder(id,LocalDate.now().getDayOfWeek());
-        for(Para para: res) paraRepository.save(para);
+        paraRepository.saveAll(res);
     }
 
     public ResponseEntity<Void> buildAllTodayParas(){
         //make teachers only
-        userRepository.findAll().stream().forEach(user -> buildTodayParasById(user.getUserId()));
+        userRepository.findAll().forEach(user -> buildTodayParasById(user.getUserId()));
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
@@ -70,7 +70,7 @@ public class ScheduleService implements Runnable{
         long initialDelay = duration.getSeconds();
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this::run,
+        scheduler.scheduleAtFixedRate(this,
                 initialDelay,
                 TimeUnit.DAYS.toSeconds(1),
                 TimeUnit.SECONDS);
@@ -78,7 +78,8 @@ public class ScheduleService implements Runnable{
 
     @Override
     public void run() {
-        ScheduleHelper lastDate = scheduleHelperRepository.findById(1L).get();
+        ScheduleHelper lastDate = scheduleHelperRepository.findById(1L)
+                .orElseThrow(()->new NothingFoundException("Не удалось получить дату предыдущего построения расписания"));
         if(lastDate.getUpdateDate().compareTo(LocalDate.now()) < 0){
             buildAllTodayParas();
             lastDate.setUpdateDate(LocalDate.now());
