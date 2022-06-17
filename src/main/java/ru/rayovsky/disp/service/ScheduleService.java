@@ -31,7 +31,8 @@ public class ScheduleService implements Runnable{
     private final UserRepository userRepository;
     private final ScheduleHelperRepository scheduleHelperRepository;
 
-    public ScheduleService(ParaRepository paraRepository, ParaPrototypeRepository paraPrototypeRepository, UserRepository userRepository, ScheduleHelperRepository scheduleHelperRepository) {
+    public ScheduleService(ParaRepository paraRepository, ParaPrototypeRepository paraPrototypeRepository,
+                           UserRepository userRepository, ScheduleHelperRepository scheduleHelperRepository){
         this.paraRepository = paraRepository;
         this.paraPrototypeRepository = paraPrototypeRepository;
         this.userRepository = userRepository;
@@ -54,8 +55,7 @@ public class ScheduleService implements Runnable{
     }
 
     public ResponseEntity<Void> buildAllTodayParas(){
-        //make teachers only
-        userRepository.findAll().forEach(user -> buildTodayParasById(user.getUserId()));
+        userRepository.findAllByRole("teacher").forEach(user -> buildTodayParasById(user.getUserId()));
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 

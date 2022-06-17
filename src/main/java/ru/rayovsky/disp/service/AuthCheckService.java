@@ -11,25 +11,35 @@ import java.util.Objects;
 
 @Service
 public class AuthCheckService {
-    //разрешено хозяину и страшим ролям
-    public void CheckAuthById(Long id){
+    public void CheckRoleAndId(Long id, String role){
         JwtUserDetails principal = checkedPrincipal();
-        if(!RoleCheck(principal) && !IdCheck(principal, id))
+        if(!RoleCheck(principal,"admin") && (!IdCheck(principal, id) || !RoleCheck(principal,role)))
+            throw  new AuthorizationException("У вас нет доступа к данным других пользователей");
+    }
+    //разрешено хозяину и страшим ролям
+    public void CheckUpperAndId(Long id){
+        JwtUserDetails principal = checkedPrincipal();
+        if(!UpperRoleCheck(principal) && !IdCheck(principal, id))
             throw  new AuthorizationException("У вас нет доступа к данным других пользователей");
     }
     //разрешено только старшим ролям
-    public void CheckAuthByRole(){
+    public void CheckUpper(){
         JwtUserDetails principal = checkedPrincipal();
-        if(!RoleCheck(principal))
+        if(!UpperRoleCheck(principal))
             throw new AuthorizationException("У вас нет доступа к редактированию данных");
     }
-    public boolean IdCheck(JwtUserDetails principal, Long id){
+
+    private boolean IdCheck(JwtUserDetails principal, Long id){
         Long authId = principal.getId();
         return Objects.equals(authId, id);
     }
-    public boolean RoleCheck(JwtUserDetails principal){
+    private boolean UpperRoleCheck(JwtUserDetails principal){
         String role = principal.getRole();
         return Arrays.asList("dispatcher", "decan", "admin").contains(role);
+    }
+    private boolean RoleCheck(JwtUserDetails principal, String chRole){
+        String role = principal.getRole();
+        return role.equals(chRole);
     }
 
     private JwtUserDetails checkedPrincipal(){

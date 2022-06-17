@@ -19,6 +19,8 @@ import ru.rayovsky.disp.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @CrossOrigin(origins="http://localhost:3000")
@@ -26,11 +28,8 @@ public class JwtAuthenticationRestController {
 
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
-
     private final AuthenticationManager authenticationManager;
-
     private final JwtTokenUtil jwtTokenUtil;
-
     private final UserDetailsService jwtUserDetailsService;
     private final UserRepository userRepository;
 
@@ -40,19 +39,16 @@ public class JwtAuthenticationRestController {
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.userRepository = userRepository;
     }
-
+    //login
     @PostMapping(value = "${jwt.get.token.uri}")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest)
             throws AuthenticationException {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-
         final JwtUserDetails userDetails = (JwtUserDetails) jwtUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-
         final String token = jwtTokenUtil.generateToken(userDetails);
-
         return ResponseEntity.ok(new JwtTokenResponse(token));
     }
-
+    //refresh(не использую)
     @GetMapping(value = "${jwt.refresh.token.uri}")
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
         String authToken = request.getHeader(tokenHeader);
@@ -68,12 +64,11 @@ public class JwtAuthenticationRestController {
         }
     }
 
-
-
     @PostMapping("/register")
     public ResponseEntity<HttpStatus> resisterNewUser(@RequestBody User user){
         //доделать валидацию
-        if(userRepository.findByEmail(user.getEmail())==null){
+        if(userRepository.findByEmail(user.getEmail()).isEmpty() &&
+            checkEmail(user.getEmail()) && user.getPassword().length()>=6){
             user.encryptPassword();
             userRepository.save(user);
             return ResponseEntity.ok(HttpStatus.OK);
@@ -91,5 +86,11 @@ public class JwtAuthenticationRestController {
         } catch (BadCredentialsException e) {
             throw new AuthorizationException("Неправильный логин или пароль");
         }
+    }
+
+    private boolean checkEmail(String email) {
+        Pattern pattern = Pattern.compile("[A-Za-z\\d._%+-]+@[A-Za-z\\d.-]+\\.[A-Za-z]{2,4}");
+        Matcher mat = pattern.matcher(email);
+        return mat.matches();
     }
 }

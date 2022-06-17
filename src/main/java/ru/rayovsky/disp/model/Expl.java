@@ -10,7 +10,7 @@ public class Expl {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long explId;
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "id", unique = true)
     private Para para;
 
     @Column(columnDefinition = "TEXT")  

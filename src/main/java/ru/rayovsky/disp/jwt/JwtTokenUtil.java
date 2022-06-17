@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,8 +21,9 @@ public class JwtTokenUtil implements Serializable {
 
     static final String CLAIM_KEY_USERNAME = "sub";
     static final String CLAIM_KEY_CREATED = "iat";
+    @Serial
     private static final long serialVersionUID = -3301605591108950415L;
-    private Clock clock = DefaultClock.INSTANCE;
+    private final Clock clock = DefaultClock.INSTANCE;
 
     @Value("${jwt.signing.key.secret}")
     private String secret;

@@ -22,7 +22,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         Optional<JwtUserDetails> findFirst = userLoader().stream()
                 .filter(user -> user.getUsername()!=null && user.getUsername().equals(username)).findFirst();
 
-        if (!findFirst.isPresent()) {
+        if (findFirst.isEmpty()) {
             throw new UsernameNotFoundException(String.format("USER_NOT_FOUND '%s'.", username));
         }
 
@@ -31,7 +31,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     public List<JwtUserDetails> userLoader(){
         List<JwtUserDetails> res = new ArrayList<>();
-        userRepository.findAll().stream().forEach(user->res.add(new JwtUserDetails(user)));
+        userRepository.findAll().forEach(user->res.add(new JwtUserDetails(user)));
         return res;
     }
 

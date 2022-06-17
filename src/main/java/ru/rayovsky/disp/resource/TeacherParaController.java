@@ -18,10 +18,10 @@ public class TeacherParaController {
         this.paraRepository = paraRepository;
         this.authCheckService = authCheckService;
     }
-
+    //пара для учителя
     @GetMapping("/{id}")
-    public List<Para> getUser(@PathVariable String id){
-        authCheckService.CheckAuthById(Long.parseLong(id));
+    public List<Para> getUserPara(@PathVariable String id){
+        authCheckService.CheckUpperAndId(Long.parseLong(id));
         List<Para> res = paraRepository.findAllByTeacher_UserIdOrderByDateAsc(Long.parseLong(id));
         if (res.size()==0) throw new NothingFoundException("Пары не найдены");
         //прячу от учителя что к нему сейчас придёт диспетчер
@@ -33,9 +33,10 @@ public class TeacherParaController {
         });
         return res;
     }
+    //подсчет пропусков
     @GetMapping("/count/{id}")
     public Integer countMisses(@PathVariable String id){
-        authCheckService.CheckAuthById(Long.parseLong(id));
+        authCheckService.CheckUpperAndId(Long.parseLong(id));
         return paraRepository.countAllByTeacher_UserIdAndStateEquals(Long.parseLong(id),"was-not");
     }
 }

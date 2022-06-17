@@ -6,12 +6,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.rayovsky.disp.model.User;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class JwtUserDetails implements UserDetails {
 
+    @Serial
     private static final long serialVersionUID = 5155720064139820502L;
 
     private final Long id;
@@ -29,9 +31,9 @@ public class JwtUserDetails implements UserDetails {
         this.username = username;
         this.password = password;
         //позже разобратся
-        List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(role));
-        //простая роль(костыль)
+        //простая роль(наверное костыль)
         this.role =role;
 
         this.authorities = authorities;

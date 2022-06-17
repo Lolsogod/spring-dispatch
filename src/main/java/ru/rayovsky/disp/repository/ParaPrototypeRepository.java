@@ -5,8 +5,9 @@ import ru.rayovsky.disp.model.ParaPrototype;
 
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Optional;
 
 public interface ParaPrototypeRepository extends JpaRepository<ParaPrototype, Long> {
-    ParaPrototype findByTeacher_UserIdAndDayAndActiveIsTrue(Long userID, DayOfWeek day);
+    Optional<ParaPrototype> findByTeacher_UserIdAndDayAndActiveIsTrue(Long userID, DayOfWeek day);
     List<ParaPrototype> findAllByTeacher_UserIdAndDayAndActiveIsTrue(Long userID, DayOfWeek day);
 }

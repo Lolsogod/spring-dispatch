@@ -2,10 +2,12 @@ package ru.rayovsky.disp.jwt.resource;
 
 import ru.rayovsky.disp.exception.AuthorizationException;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class  JwtTokenRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = -5616176897013108345L;
 
     private String username;
