@@ -70,7 +70,7 @@ public class ScheduleService implements Runnable{
         long initialDelay = duration.getSeconds();
 
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this,
+        scheduler.scheduleAtFixedRate(this::run,
                 initialDelay,
                 TimeUnit.DAYS.toSeconds(1),
                 TimeUnit.SECONDS);
@@ -79,7 +79,7 @@ public class ScheduleService implements Runnable{
     @Override
     public void run() {
         ScheduleHelper lastDate = scheduleHelperRepository.findById(1L)
-                .orElseThrow(()->new NothingFoundException("Не удалось получить дату предыдущего построения расписания"));
+                .orElseThrow(()->new NothingFoundException("Не удалось получить предыдущую дату создания расписания"));
         if(lastDate.getUpdateDate().compareTo(LocalDate.now()) < 0){
             buildAllTodayParas();
             lastDate.setUpdateDate(LocalDate.now());

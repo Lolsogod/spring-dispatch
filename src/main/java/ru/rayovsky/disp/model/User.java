@@ -18,6 +18,11 @@ public class User {
     private String email;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     private String role;
     private String name;
 

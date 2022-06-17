@@ -39,47 +39,40 @@ public class ParaController {
     public List<List<Para>> getAllTodayParas(){
         authCheckService.CheckUpper();
         List<List<Para>> res = new ArrayList<>();
+
         IntStream.range(1,6).forEach(i->res.add(paraRepository.findAllByNumAndDate(i,LocalDate.now())));
+
         return res;
     }
-    //поменять стейт (облегчи метод)
+    //поменять стейт
     @PutMapping("/{id}/state/")
     public ResponseEntity<HttpStatus> setState(@PathVariable Long id, @RequestBody Map<String, String> json){
-        //TODO: сначала все распарсить а вместо постоянных гетов
-        //TODO: давать опшианалы в репозиториях
-        authCheckService.CheckRoleAndId(Long.parseLong(json.get("disId")), "dispatcher");
+        //парс джсона
+        Long disID = Long.parseLong(json.get("disId"));
         LocalTime time =  LocalTime.of(Integer.parseInt(json.get("hour")),
                 Integer.parseInt(json.get("minute")));
-        //checks
-        if(json.get("state") == null || json.get("hour") ==null ||  json.get("minute") ==null)
-            throw new NothingFoundException("Заданы не все параметры");
-        if(!Arrays.asList("pending", "was", "was-not", "reserved").contains(json.get("state")))
-            throw new IllegalArgumentException("не верно задан параметр state");
+        String state = json.get("state");
 
-        try {
-            Para para = paraRepository.findById(id)
-                    .orElseThrow(()->new NothingFoundException("Пара не найдена"));
+        //проверки
+        authCheckService.CheckRoleAndId(disID, "dispatcher");
+        checkState(state);
+        Para para = paraRepository.findById(id).orElseThrow(()->new NothingFoundException("Пара не найдена"));
+        checkTime(time, para);
 
-            ParaTime inter = paraTimeRepository.findByNum(para.getNum());
+        //если нет ответственного то ставится текущий диспечер
+        if (para.getDispatcher() == null){
+            User dis = userRepository.findById(disID)
+                    .orElseThrow(()->new NothingFoundException("Пользователь не найден"));
+            para.setDispatcher(dis);
+        }
 
-            if (!time.isAfter(inter.getStartTime().minus(1,ChronoUnit.SECONDS))||
-                    !time.isBefore(inter.getEndTime().plus(1, ChronoUnit.SECONDS))) {
-                throw new IllegalArgumentException("заданное время не соответствует времени проведения пары");
-            }
+        //если диспечер ответственен за пару то менятся стейт, иначе - ошибка
+        if(para.getDispatcher().getUserId()==disID){
+            para.setState(state);
+            para.setCheckDate(time);
+            paraRepository.save(para);
+        }else throw  new AuthorizationException("Другой диспетчер уже отвечает за данную пару");
 
-            if (para.getDispatcher() == null){
-                User dis = userRepository.findById(Long.parseLong(json.get("disId")))
-                        .orElseThrow(()->new NothingFoundException("Пользователь не найден"));
-                para.setDispatcher(dis);
-            }
-            if(para.getDispatcher().getUserId()==Long.parseLong(json.get("disId"))){
-                para.setState(json.get("state"));
-                para.setCheckDate(time);
-
-                paraRepository.save(para);
-            }else throw  new AuthorizationException("Другой диспетчер уже отвечает за данную пару");
-
-        }catch (NoSuchElementException e){throw new NothingFoundException("Пара не найдена");}
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
     //пара по айди
@@ -88,7 +81,21 @@ public class ParaController {
         Para para = paraRepository.findById(id)
                 .orElseThrow(()->new NothingFoundException("Пара не найдена"));
         authCheckService.CheckUpperAndId(para.getTeacher().getUserId());
+
         return para;
     }
+    //проверки
+    public void checkTime(LocalTime time, Para para){
+        ParaTime inter = paraTimeRepository.findByNum(para.getNum());
+        if (!time.isAfter(inter.getStartTime().minus(1,ChronoUnit.SECONDS))||
+                !time.isBefore(inter.getEndTime().plus(1, ChronoUnit.SECONDS))) {
+            throw new IllegalArgumentException("заданное время не соответствует времени проведения пары");
+        }
+    }
+    public void checkState(String state){
+        if(!Arrays.asList("pending", "was", "was-not", "reserved").contains(state))
+            throw new IllegalArgumentException("не верно задан параметр state");
+    }
+
 
 }

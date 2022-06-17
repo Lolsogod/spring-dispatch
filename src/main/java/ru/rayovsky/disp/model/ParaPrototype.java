@@ -67,4 +67,20 @@ public class ParaPrototype {
     public Boolean getActive() {
         return active;
     }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setAudit(String audit) {
+        this.audit = audit;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
 }

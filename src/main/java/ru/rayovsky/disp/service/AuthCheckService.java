@@ -16,6 +16,11 @@ public class AuthCheckService {
         if(!RoleCheck(principal,"admin") && (!IdCheck(principal, id) || !RoleCheck(principal,role)))
             throw  new AuthorizationException("У вас нет доступа к данным других пользователей");
     }
+    public void CheckAdmin(){
+        JwtUserDetails principal = checkedPrincipal();
+        if(!RoleCheck(principal,"admin"))
+            throw  new AuthorizationException("Вы не админ");
+    }
     //разрешено хозяину и страшим ролям
     public void CheckUpperAndId(Long id){
         JwtUserDetails principal = checkedPrincipal();

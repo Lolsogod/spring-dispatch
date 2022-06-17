@@ -9,5 +9,6 @@ import java.util.Optional;
 
 public interface ParaPrototypeRepository extends JpaRepository<ParaPrototype, Long> {
     Optional<ParaPrototype> findByTeacher_UserIdAndDayAndActiveIsTrue(Long userID, DayOfWeek day);
+    List<ParaPrototype> findAllByTeacher_UserIdAndActiveIsTrueAndNum(Long userID, int num);
     List<ParaPrototype> findAllByTeacher_UserIdAndDayAndActiveIsTrue(Long userID, DayOfWeek day);
 }
