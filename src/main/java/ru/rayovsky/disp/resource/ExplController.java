@@ -34,13 +34,13 @@ public class ExplController {
     public Expl getExpl(@PathVariable Long id){
         Expl expl = explRepository.findByPara_Id(id)
                 .orElseThrow(()-> new NothingFoundException("Обьяснительная не найдена"));
-        authCheckService.CheckUpperAndId(expl.getPara().getTeacher().getUserId());
+        authCheckService.checkUpperAndId(expl.getPara().getTeacher().getUserId());
         return expl;
     }
     //список айди пар к которым обьяснительную уже написали
     @GetMapping("/answered/{id}")
     public List<Long> getAnswered(@PathVariable Long id){
-        authCheckService.CheckUpperAndId(id);
+        authCheckService.checkUpperAndId(id);
         List<Expl> expls = explRepository.findAllByPara_Teacher_UserId(id);
         return expls.stream().map(el -> el.getPara().getId()).collect(Collectors.toList());
     }
@@ -49,7 +49,7 @@ public class ExplController {
     public ResponseEntity<Void> newExplanation(@RequestBody Map<String, String> json, @PathVariable Long paraId){
         Para para = paraRepository.findById(paraId)
                 .orElseThrow(()->new NothingFoundException("Пара не найдена"));
-        authCheckService.CheckRoleAndId(para.getTeacher().getUserId(), "teacher");
+        authCheckService.checkRoleAndId(para.getTeacher().getUserId(), "teacher");
         Expl res = new Expl(para, json.get("reason"), LocalDate.now());
         try {
             explRepository.save(res);

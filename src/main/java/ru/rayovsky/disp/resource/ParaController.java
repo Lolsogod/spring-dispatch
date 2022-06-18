@@ -37,7 +37,7 @@ public class ParaController {
     //все пары на сегодня
     @GetMapping("/")
     public List<List<Para>> getAllTodayParas(){
-        authCheckService.CheckUpper();
+        authCheckService.checkUpper();
         List<List<Para>> res = new ArrayList<>();
 
         IntStream.range(1,6).forEach(i->res.add(paraRepository.findAllByNumAndDate(i,LocalDate.now())));
@@ -54,7 +54,7 @@ public class ParaController {
         String state = json.get("state");
 
         //проверки
-        authCheckService.CheckRoleAndId(disID, "dispatcher");
+        authCheckService.checkRoleAndId(disID, "dispatcher");
         checkState(state);
         Para para = paraRepository.findById(id).orElseThrow(()->new NothingFoundException("Пара не найдена"));
         checkTime(time, para);
@@ -80,7 +80,7 @@ public class ParaController {
     public Para getParaById(@PathVariable Long id){
         Para para = paraRepository.findById(id)
                 .orElseThrow(()->new NothingFoundException("Пара не найдена"));
-        authCheckService.CheckUpperAndId(para.getTeacher().getUserId());
+        authCheckService.checkUpperAndId(para.getTeacher().getUserId());
 
         return para;
     }

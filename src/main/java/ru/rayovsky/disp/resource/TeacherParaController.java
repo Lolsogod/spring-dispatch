@@ -21,22 +21,25 @@ public class TeacherParaController {
     //пара для учителя
     @GetMapping("/{id}")
     public List<Para> getUserPara(@PathVariable String id){
-        authCheckService.CheckUpperAndId(Long.parseLong(id));
+        authCheckService.checkUpperAndId(Long.parseLong(id));
         List<Para> res = paraRepository.findAllByTeacher_UserIdOrderByDateAsc(Long.parseLong(id));
         if (res.size()==0) throw new NothingFoundException("Пары не найдены");
         //прячу от учителя что к нему сейчас придёт диспетчер
-        res.forEach(para -> {
-            if (para.getState().equals("reserved")){
-                para.setDispatcher(null);
-                para.setState("pending");
-            }
-        });
+        if(authCheckService.isTeacher()){
+            res.forEach(para -> {
+                if (para.getState().equals("reserved")){
+                    para.setCheckDate(null);
+                    para.setDispatcher(null);
+                    para.setState("pending");
+                }
+            });
+        }
         return res;
     }
     //подсчет пропусков
     @GetMapping("/count/{id}")
     public Integer countMisses(@PathVariable String id){
-        authCheckService.CheckUpperAndId(Long.parseLong(id));
+        authCheckService.checkUpperAndId(Long.parseLong(id));
         return paraRepository.countAllByTeacher_UserIdAndStateEquals(Long.parseLong(id),"was-not");
     }
 }

@@ -11,38 +11,42 @@ import java.util.Objects;
 
 @Service
 public class AuthCheckService {
-    public void CheckRoleAndId(Long id, String role){
+    public void checkRoleAndId(Long id, String role){
         JwtUserDetails principal = checkedPrincipal();
-        if(!RoleCheck(principal,"admin") && (!IdCheck(principal, id) || !RoleCheck(principal,role)))
+        if(!roleCheck(principal,"admin") && (!idCheck(principal, id) || !roleCheck(principal,role)))
             throw  new AuthorizationException("У вас нет доступа к данным других пользователей");
     }
-    public void CheckAdmin(){
+    public void checkAdmin(){
         JwtUserDetails principal = checkedPrincipal();
-        if(!RoleCheck(principal,"admin"))
+        if(!roleCheck(principal,"admin"))
             throw  new AuthorizationException("Вы не админ");
     }
     //разрешено хозяину и страшим ролям
-    public void CheckUpperAndId(Long id){
+    public void checkUpperAndId(Long id){
         JwtUserDetails principal = checkedPrincipal();
-        if(!UpperRoleCheck(principal) && !IdCheck(principal, id))
+        if(!upperRoleCheck(principal) && !idCheck(principal, id))
             throw  new AuthorizationException("У вас нет доступа к данным других пользователей");
     }
     //разрешено только старшим ролям
-    public void CheckUpper(){
+    public void checkUpper(){
         JwtUserDetails principal = checkedPrincipal();
-        if(!UpperRoleCheck(principal))
+        if(!upperRoleCheck(principal))
             throw new AuthorizationException("У вас нет доступа к редактированию данных");
     }
 
-    private boolean IdCheck(JwtUserDetails principal, Long id){
+    public boolean isTeacher(){
+        JwtUserDetails principal = checkedPrincipal();
+        return  roleCheck(principal, "teacher");
+    }
+    private boolean idCheck(JwtUserDetails principal, Long id){
         Long authId = principal.getId();
         return Objects.equals(authId, id);
     }
-    private boolean UpperRoleCheck(JwtUserDetails principal){
+    private boolean upperRoleCheck(JwtUserDetails principal){
         String role = principal.getRole();
         return Arrays.asList("dispatcher", "decan", "admin").contains(role);
     }
-    private boolean RoleCheck(JwtUserDetails principal, String chRole){
+    private boolean roleCheck(JwtUserDetails principal, String chRole){
         String role = principal.getRole();
         return role.equals(chRole);
     }

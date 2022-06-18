@@ -37,13 +37,13 @@ public class AdminController {
 
     @GetMapping(value = "/")
     public List<User> getAllUsers(){
-        authCheckService.CheckAdmin();
+        authCheckService.checkAdmin();
         return userRepository.findAll();
     }
 
     @PutMapping(value = "/{id}/role")
     public ResponseEntity<HttpStatus> setRole(@PathVariable Long id, @RequestBody Map<String, String> json){
-        authCheckService.CheckAdmin();
+        authCheckService.checkAdmin();
         User user = userRepository.findById(id)
                 .orElseThrow(()->new NothingFoundException("Пользователь не найден"));
         user.setRole(json.get("curRole"));
@@ -52,7 +52,7 @@ public class AdminController {
     }
     @GetMapping(value = "/{id}/rasp/")
     public List<List<ParaPrototype>> getRasp(@PathVariable Long id){
-        authCheckService.CheckRoleAndId(id, "teacher");
+        authCheckService.checkRoleAndId(id, "teacher");
         List<List<ParaPrototype>> res = new ArrayList<>();
         IntStream.range(1,7)
                 .forEach(i->res.add(paraPrototypeRepository.findAllByTeacher_UserIdAndActiveIsTrueAndNum(id, i)));
@@ -61,7 +61,7 @@ public class AdminController {
 
     @PutMapping(value = "/{id}/prototype/")
     public ResponseEntity<HttpStatus> editRasp(@PathVariable Long id,  @RequestBody Map<String, String> json){
-        authCheckService.CheckAdmin();
+        authCheckService.checkAdmin();
 
         ParaPrototype proto = paraPrototypeRepository.findById(id)
                 .orElseThrow(()->new NothingFoundException("Прототип не найден"));
@@ -76,7 +76,7 @@ public class AdminController {
 
     @PutMapping(value = "/new-prototype/")
     public Long addRasp(@RequestBody Map<String, String> json) {
-        authCheckService.CheckAdmin();
+        authCheckService.checkAdmin();
         User teacher = userRepository.findById(Long.parseLong(json.get("userId")))
                 .orElseThrow(() -> new NothingFoundException("Учитель не найден"));
         Subject sub = subjectRepository.findById(Long.parseLong(json.get("subjectId")))
@@ -93,7 +93,7 @@ public class AdminController {
     }
     @PutMapping(value = "/{id}/disable/")
     public ResponseEntity<HttpStatus> disableRasp(@PathVariable Long id){
-        authCheckService.CheckAdmin();
+        authCheckService.checkAdmin();
 
         ParaPrototype proto = paraPrototypeRepository.findById(id)
                 .orElseThrow(()->new NothingFoundException("Прототип не найден"));
@@ -104,7 +104,7 @@ public class AdminController {
 
     @GetMapping(value = "/subs")
     public List<Subject> getSubs(){
-        authCheckService.CheckAdmin();
+        authCheckService.checkAdmin();
 
         return subjectRepository.findAll();
     }

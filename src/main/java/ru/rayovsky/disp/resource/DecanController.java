@@ -24,7 +24,7 @@ public class DecanController {
 
     @GetMapping(value = "/")
     public List<User> getAllTeachers(){
-        authCheckService.CheckUpper();
+        authCheckService.checkUpper();
         return userRepository.findAllByRoleEquals("teacher");
     }
 }
